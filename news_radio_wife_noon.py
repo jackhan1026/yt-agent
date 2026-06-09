@@ -28,7 +28,8 @@ TG_BOT_TOKEN = os.environ["TG_BOT_TOKEN_WIFE"]
 TG_CHAT_ID   = os.environ["TG_CHAT_ID_WIFE"]
 
 WIFE_NAME        = os.environ.get("WIFE_NAME", "听众")
-CITY_FOR_WEATHER = "Detroit"      # change to your city
+WIFE_PROFILE     = os.environ.get("WIFE_PROFILE", "")
+CITY_FOR_WEATHER = os.environ["CITY_FOR_WEATHER"]
 TARGET_MINUTES = 30
 TARGET_CHARS   = 9000
 MIN_CHARS      = 8500
@@ -172,7 +173,7 @@ def write_broadcast(bucket_items, weather):
 
     prompt = f"""你是一位清爽专业的双语女主播，正在为"{WIFE_NAME}"录制专属午间新闻播报。
 
-听众：{WIFE_NAME} 是CPA、国际税高级经理，就职于汽车Tier 1供应商。希望午休30分钟了解全球重大时事与财经动态，并获得优质播客推荐用于下班通勤收听。
+听众：{WIFE_NAME}{(' ' + WIFE_PROFILE) if WIFE_PROFILE else ''}。希望午休30分钟了解全球重大时事与财经动态，并获得优质播客推荐用于下班通勤收听。
 风格：清晰简洁、信息密度高、有见地，语气比早间稍活泼，适合午间收听。
 今天是 {today} {weekday_cn}，午间播报。
 

@@ -20,11 +20,12 @@ TG_BOT_TOKEN = os.environ["TG_BOT_TOKEN_WIFE"]
 TG_CHAT_ID   = os.environ["TG_CHAT_ID_WIFE"]
 
 WIFE_NAME      = os.environ.get("WIFE_NAME", "听众")
+WIFE_PROFILE   = os.environ.get("WIFE_PROFILE", "")
 TARGET_MINUTES = 30
 CLAUDE_MODEL   = "sonnet"    # sonnet required — haiku refuses content generation in CC context
 FILE_PREFIX    = "wife_"
 
-CITY_FOR_WEATHER = "Detroit"
+CITY_FOR_WEATHER = os.environ["CITY_FOR_WEATHER"]
 
 EDGE_VOICE = "zh-CN-YunyangNeural"   # 男声，沉稳主播风
 EDGE_RATE  = "+0%"
@@ -198,7 +199,7 @@ def write_broadcast(bucket_items, weather):
 
     prompt = f"""你是一位沉稳专业的双语男主播,正在为"{WIFE_NAME}"录制专属晨间财税播报。
 
-听众: {WIFE_NAME} 是CPA、国际税高级经理,就职于汽车Tier 1供应商,日常处理国际税合规、转让定价、关税政策、跨国并购税务。
+听众: {WIFE_NAME}{(' ' + WIFE_PROFILE) if WIFE_PROFILE else ''}。
 风格: 专业沉稳有深度,像懂她专业的同行在播报最新资讯。今天是 {today} {weekday_cn}。
 总长度约 {TARGET_MINUTES} 分钟,约 {target_chars} 字(硬性要求,每条讲深讲透,必须达到字数)。
 

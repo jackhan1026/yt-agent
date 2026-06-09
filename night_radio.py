@@ -22,7 +22,8 @@ TG_CHAT_ID_WIFE   = os.environ["TG_CHAT_ID_WIFE"]
 TARGET_MINUTES   = 30
 CLAUDE_MODEL     = "sonnet"        # creative content needs quality
 LISTENER_NAME    = os.environ.get("LISTENER_NAME", "听众")
-CITY_FOR_WEATHER = "Detroit"      # change to your city
+OWNER_PROFILE    = os.environ.get("OWNER_PROFILE", "")
+CITY_FOR_WEATHER = os.environ["CITY_FOR_WEATHER"]
 
 EDGE_VOICE = "zh-CN-XiaoxiaoNeural"
 EDGE_RATE  = "-10%"
@@ -120,7 +121,7 @@ def write_evening_broadcast(weather, yesterday_topics=None):
 
     prompt = f"""你是我的私人晚间电台主持人，每天下班后为我录制一期《世界下班以后》。
 
-关于我：白天技术工程工作，脑力消耗大；喜欢中国茶文化、景德镇瓷器、书法、博物馆与历史；喜欢世界城市、旅行、美食、建筑与文化细节；重视家庭、健康与安静感；喜欢"慢下来"的感觉。
+关于我：{OWNER_PROFILE}
 
 节目名：《世界下班以后》。今天是 {today} {weekday_cn}。
 {avoid_block}
