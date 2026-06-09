@@ -19,7 +19,7 @@ from radio_utils import synthesize_mp3 as _synth
 TG_BOT_TOKEN = os.environ["TG_BOT_TOKEN_WIFE"]
 TG_CHAT_ID   = os.environ["TG_CHAT_ID_WIFE"]
 
-WIFE_NAME      = "听众"           # change to recipient's name
+WIFE_NAME      = os.environ.get("WIFE_NAME", "听众")
 TARGET_MINUTES = 30
 CLAUDE_MODEL   = "sonnet"    # sonnet required — haiku refuses content generation in CC context
 FILE_PREFIX    = "wife_"

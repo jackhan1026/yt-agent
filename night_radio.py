@@ -21,7 +21,7 @@ TG_CHAT_ID_WIFE   = os.environ["TG_CHAT_ID_WIFE"]
 
 TARGET_MINUTES   = 30
 CLAUDE_MODEL     = "sonnet"        # creative content needs quality
-LISTENER_NAME    = "听众"          # change to recipient's name
+LISTENER_NAME    = os.environ.get("LISTENER_NAME", "听众")
 CITY_FOR_WEATHER = "Detroit"      # change to your city
 
 EDGE_VOICE = "zh-CN-XiaoxiaoNeural"

@@ -19,7 +19,7 @@ LOOKBACK_HOURS = 36
 TARGET_MINUTES = 50
 CLAUDE_MODEL   = "sonnet"         # sonnet required — haiku refuses content generation in CC context
 
-LISTENER_NAME    = "听众"          # change to recipient's name
+LISTENER_NAME    = os.environ.get("LISTENER_NAME", "听众")
 CITY_FOR_WEATHER = "Detroit"      # change to your city
 
 EDGE_VOICE = "zh-CN-XiaoxiaoNeural"
