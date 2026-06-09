@@ -93,6 +93,36 @@ Each script has a small constants block at the top. Common knobs:
 | `BGM_VOLUME` | Background music level (0.0–1.0) |
 | `CITY_FOR_WEATHER` | City for weather fetch |
 
+## Extending & customising
+
+The programs in this repo are one example setup — everything is designed to be adapted:
+
+### Delivery schedule
+Change the cron time to whatever fits your routine. Want a lunchtime briefing instead of morning? Change `45 06` to `00 12`. Want weekdays only? Add `1-5` to the day-of-week field.
+
+### News sources & topics
+Each script has a `FEEDS` dict near the top listing RSS sources by category. You can:
+- **Add** any RSS feed URL (Google News, industry blogs, podcasts, etc.)
+- **Remove** categories you don't care about
+- **Replace** the entire `FEEDS` dict to cover a completely different domain — finance, sports, local news, science, anything with an RSS feed
+
+### Program format & content
+The Claude prompt inside `write_broadcast()` (or `write_evening_broadcast()`, `write_sleep_script()`) is plain text — edit it freely to:
+- Change the number of news items per section
+- Add or remove sections entirely
+- Switch language (English, bilingual, etc.)
+- Change the tone, persona, or style of the host
+- Target a different city, profession, or set of interests
+
+### Delivery channel
+The scripts send to Telegram, but the final step is just an HTTP POST with an MP3 file. You can swap the `send_audio()` function to deliver via email attachment, WhatsApp (via API), a local folder, or any other channel.
+
+### Multiple listeners
+Each script reads `LISTENER_NAME` and `WIFE_NAME` from environment variables (`secrets.env`). To add a third listener, duplicate a script, point it at a new `TG_BOT_TOKEN` / `TG_CHAT_ID`, and set a new name variable — then add one cron line.
+
+### Personal worklog
+`worklog.py` + `worklog_bot.py` provide a lightweight SQLite task log with CLI and Telegram bot interfaces. The bot reuses your existing Telegram bot token — no extra setup needed.
+
 ## Project structure
 
 ```
