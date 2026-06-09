@@ -1,0 +1,29 @@
+# Secrets — never commit
+secrets.env
+
+# Generated audio and transcripts
+radio/
+radio_night/
+radio_noon/
+radio_sleep/
+bgm/
+*.mp3
+*.txt.bak
+
+# Logs
+*.log
+
+# Python
+venv/
+__pycache__/
+*.py[cod]
+*.pyo
+.env
+
+# Editor / OS
+.DS_Store
+*.swp
+*~
+
+# Claude Code local settings
+.claude/settings.local.json
