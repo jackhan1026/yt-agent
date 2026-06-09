@@ -15,6 +15,9 @@ bgm/
 *.mp3
 *.txt.bak
 
+# Worklog database (local only)
+worklog.db
+
 # Logs
 *.log
 
