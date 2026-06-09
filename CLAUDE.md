@@ -6,9 +6,9 @@ A personal AI radio station that generates daily Chinese-language audio programs
 ## Scripts
 | Script | Audience | Schedule | Length |
 |---|---|---|---|
-| `news_radio_cc.py` | CC (韩卿) | 06:45 daily | ~50 min |
-| `news_radio_wife.py` | Wife (曾霓) | 07:00 daily | ~30 min |
-| `news_radio_wife_noon.py` | Wife | 12:00 daily | ~30 min |
+| `news_radio_cc.py` | Listener 1 | 06:45 daily | ~50 min |
+| `news_radio_wife.py` | Listener 2 | 07:00 daily | ~30 min |
+| `news_radio_wife_noon.py` | Listener 2 | 12:00 daily | ~30 min |
 | `night_radio.py` | Both | 17:30 weekdays | ~30 min |
 | `sleep_radio.py` | Both | 23:00 daily | ~20 min |
 

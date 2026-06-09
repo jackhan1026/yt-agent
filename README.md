@@ -6,9 +6,9 @@ A self-hosted AI radio station that generates personalized Chinese-language audi
 
 | Program | Description | Target | Length |
 |---|---|---|---|
-| **晨间播报** (`news_radio_cc.py`) | Tech/AI/science + auto industry news digest + US stock market | CC (韩卿) | ~50 min |
-| **妻子晨间** (`news_radio_wife.py`) | Morning news for wife | 曾霓 | ~30 min |
-| **妻子午间** (`news_radio_wife_noon.py`) | Global politics / geopolitics / finance | 曾霓 | ~30 min |
+| **晨间播报** (`news_radio_cc.py`) | Tech/AI/science + auto industry news digest + US stock market | Listener 1 | ~50 min |
+| **第二听众晨间** (`news_radio_wife.py`) | Morning news — international tax / transfer pricing focus | Listener 2 | ~30 min |
+| **第二听众午间** (`news_radio_wife_noon.py`) | Global politics / geopolitics / finance | Listener 2 | ~30 min |
 | **世界下班以后** (`night_radio.py`) | Evening culture radio — world cities, history, slow life | Both | ~30 min |
 | **今晚慢慢睡** (`sleep_radio.py`) | Bedtime relaxation — stories, health tips, cultural imagery | Both | ~20 min |
 

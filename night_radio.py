@@ -21,7 +21,8 @@ TG_CHAT_ID_WIFE   = os.environ["TG_CHAT_ID_WIFE"]
 
 TARGET_MINUTES   = 30
 CLAUDE_MODEL     = "sonnet"        # creative content needs quality
-CITY_FOR_WEATHER = "Detroit"
+LISTENER_NAME    = "听众"          # change to recipient's name
+CITY_FOR_WEATHER = "Detroit"      # change to your city
 
 EDGE_VOICE = "zh-CN-XiaoxiaoNeural"
 EDGE_RATE  = "-10%"
@@ -98,7 +99,7 @@ def write_evening_broadcast(weather, yesterday_topics=None):
 
     if weather:
         weather_block = (
-            f"今晚底特律天气(可融入开场氛围,不要照念数据):\n"
+            f"今晚{CITY_FOR_WEATHER}天气(可融入开场氛围,不要照念数据):\n"
             f"- 当前 {weather['temp_c']}°C,{weather['desc']},体感 {weather['feels_like_c']}°C\n"
             f"- 今日最高 {weather['max_c']}°C / 最低 {weather['min_c']}°C\n"
             f"- 日落约 {weather['sunset']}"
@@ -132,7 +133,7 @@ def write_evening_broadcast(weather, yesterday_topics=None):
 节目结构（七节都必须写完整）：
 
 第1节 开场（最少500字）
-**第一句必须原文照用**："韩卿，下班了，辛苦了，欢迎收听为你个人定制的晚间节目。"
+**第一句必须原文照用**："{LISTENER_NAME}，下班了，辛苦了，欢迎收听为你个人定制的晚间节目。"
 然后融入今晚天气、季节感、傍晚空气、开车回家的感觉。
 {weather_block}
 

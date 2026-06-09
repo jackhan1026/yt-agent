@@ -1,11 +1,16 @@
 # Secrets — never commit
 secrets.env
 
-# Generated audio and transcripts
-radio/
-radio_night/
-radio_noon/
-radio_sleep/
+# Generated audio and transcripts — exclude daily output, keep sanitized examples
+radio/**
+radio_night/**
+radio_noon/**
+radio_sleep/**
+!radio/example_script.txt
+!radio/example_wife_script.txt
+!radio_night/example_script.txt
+!radio_noon/example_script.txt
+!radio_sleep/example_script.txt
 bgm/
 *.mp3
 *.txt.bak

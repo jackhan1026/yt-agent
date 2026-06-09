@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Daily News Radio — CC (韩卿) edition · Detroit · BGM + stock market summary."""
+"""Daily News Radio — morning edition · BGM + stock market summary."""
 
 import os
 import re
@@ -19,7 +19,8 @@ LOOKBACK_HOURS = 36
 TARGET_MINUTES = 50
 CLAUDE_MODEL   = "sonnet"         # sonnet required — haiku refuses content generation in CC context
 
-CITY_FOR_WEATHER = "Detroit"
+LISTENER_NAME    = "听众"          # change to recipient's name
+CITY_FOR_WEATHER = "Detroit"      # change to your city
 
 EDGE_VOICE = "zh-CN-XiaoxiaoNeural"
 EDGE_RATE  = "+0%"
@@ -155,7 +156,7 @@ def write_broadcast(bucket_items, weather, market_data=None):
     target_chars = TARGET_MINUTES * 300
 
     weather_block = (
-        f"底特律今日天气:\n"
+        f"{CITY_FOR_WEATHER}今日天气:\n"
         f"- 当前 {weather['temp_c']}°C/{weather['temp_f']}°F,体感 {weather['feels_like_c']}°C\n"
         f"- {weather['desc']},高/低 {weather['max_c']}°C/{weather['min_c']}°C\n"
         f"- 湿度 {weather['humidity']}%,风速 {weather['wind_kmh']} km/h\n"
@@ -180,16 +181,16 @@ def write_broadcast(bucket_items, weather, market_data=None):
 
     compact = json.dumps(bucket_items, ensure_ascii=False)[:48000]
 
-    prompt = f"""你是温暖的双语女主播,为听众"韩卿"录制专属早间新闻播报。
+    prompt = f"""你是温暖的双语女主播,为听众"{LISTENER_NAME}"录制专属早间新闻播报。
 风格: 温暖家人型,亲切自然。今天是 {today} {weekday_cn}。
 总长度约 {TARGET_MINUTES} 分钟,约 {target_chars} 字(硬性要求,不够时把每条新闻讲得更深入、更有背景和分析)。
 
-称呼: 第一句用"韩卿"(仅此一次): "韩卿,早上好,新的一天开始啦",之后全部用"亲爱的"。
+称呼: 第一句用"{LISTENER_NAME}"(仅此一次): "{LISTENER_NAME},早上好,新的一天开始啦",之后全部用"亲爱的"。
 
 结构(严格按序):
 
 第一部分 开场问候(约2分钟)
-开场问候,报日期星期,播报底特律天气(摄氏度为主),给一句具体建议,过渡到新闻。
+开场问候,报日期星期,播报{CITY_FOR_WEATHER}天气(摄氏度为主),给一句具体建议,过渡到新闻。
 
 第二部分 科技/AI/科学新闻(8条,约20分钟)
 选最值得听的AI、高科技、科学突破新闻,每条标明来源和时间,每条约2.5分钟:来源+是什么+为什么重要+对普通人或社会的影响。涵盖AI前沿、芯片/硬件、科学发现等多角度。
@@ -233,7 +234,7 @@ def send_audio(mp3_path, caption):
                 "chat_id":   TG_CHAT_ID,
                 "caption":   caption[:1020],
                 "title":     f"AI 晨间播报 · {today}",
-                "performer": "韩卿专属早间电台",
+                "performer": "早间电台",
             },
             files={"audio": ("morning_radio.mp3", f, "audio/mpeg")},
             timeout=300,

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Daily News Radio — Wife Edition (曾霓)
+Daily News Radio — Second listener edition
 专注: 国际税 / Transfer Pricing / Tariff / Pillar Two / M&A / 美股 / 财报 / 大公司动态
-约 30 分钟 · Detroit · BGM + edge-tts
+约 30 分钟 · BGM + edge-tts
 """
 
 import os
@@ -19,7 +19,7 @@ from radio_utils import synthesize_mp3 as _synth
 TG_BOT_TOKEN = os.environ["TG_BOT_TOKEN_WIFE"]
 TG_CHAT_ID   = os.environ["TG_CHAT_ID_WIFE"]
 
-WIFE_NAME      = "曾霓"
+WIFE_NAME      = "听众"           # change to recipient's name
 TARGET_MINUTES = 30
 CLAUDE_MODEL   = "sonnet"    # sonnet required — haiku refuses content generation in CC context
 FILE_PREFIX    = "wife_"
@@ -187,7 +187,7 @@ def write_broadcast(bucket_items, weather):
     target_chars = TARGET_MINUTES * 300
 
     weather_block = (
-        f"底特律今日天气:\n"
+        f"{CITY_FOR_WEATHER}今日天气:\n"
         f"- 当前 {weather['temp_c']}°C/{weather['temp_f']}°F,体感 {weather['feels_like_c']}°C\n"
         f"- {weather['desc']},高/低 {weather['max_c']}°C/{weather['min_c']}°C\n"
         f"- 日出 {weather['sunrise']},日落 {weather['sunset']}"
@@ -207,7 +207,7 @@ def write_broadcast(bucket_items, weather):
 结构(严格按序,共约30分钟):
 
 第一部分 开场问候(约90秒)
-开场,报日期星期,播报底特律天气,一句专业激励,过渡到正文。
+开场,报日期星期,播报{CITY_FOR_WEATHER}天气,一句专业激励,过渡到正文。
 
 第二部分 国际税与转让定价(3-4条,约8分钟)
 主题:国际税合规/TP/BEPS/各国税局新动态。每条标明来源和时间,格式:来源+核心+对国际税从业者的实务影响。

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Noon Radio — Wife Edition (曾霓)
+Noon Radio — Second listener edition
 主题: 全球时政 / 地缘政治 / 财经知识 / Podcast推荐
-目标约 30 分钟 · 午间版 · Detroit · BGM + edge-tts
+目标约 30 分钟 · 午间版 · BGM + edge-tts
 
 TTS 速率校准 (XiaoxiaoNeural +5%): 约 290 字/分钟
 → 30 分钟需要至少 8700 字，设硬性下限 8500 字
@@ -27,7 +27,8 @@ from radio_utils import synthesize_mp3 as _synth
 TG_BOT_TOKEN = os.environ["TG_BOT_TOKEN_WIFE"]
 TG_CHAT_ID   = os.environ["TG_CHAT_ID_WIFE"]
 
-WIFE_NAME      = "曾霓"
+WIFE_NAME        = "听众"         # change to recipient's name
+CITY_FOR_WEATHER = "Detroit"      # change to your city
 TARGET_MINUTES = 30
 TARGET_CHARS   = 9000
 MIN_CHARS      = 8500
@@ -152,7 +153,7 @@ def write_broadcast(bucket_items, weather):
         datetime.now().weekday()]
 
     weather_block = (
-        f"底特律午间: {weather['temp_c']}°C/{weather['temp_f']}°F, "
+        f"{CITY_FOR_WEATHER}午间: {weather['temp_c']}°C/{weather['temp_f']}°F, "
         f"{weather['desc']}, 今日高/低 {weather['max_c']}°C/{weather['min_c']}°C"
         if weather else "(天气获取失败)"
     )
@@ -257,7 +258,7 @@ def main():
         print("⚠️  ANTHROPIC_API_KEY is set — will be unset for claude -p")
 
     print("→ Fetching weather…")
-    weather = fetch_weather("Detroit")
+    weather = fetch_weather(CITY_FOR_WEATHER)
     if weather:
         print(f"  {weather['temp_c']}°C, {weather['desc']}")
 
