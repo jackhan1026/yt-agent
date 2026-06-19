@@ -8,7 +8,7 @@ import time
 import requests
 import feedparser
 from datetime import datetime, timezone, timedelta
-from radio_utils import call_claude, fetch_weather, get_audio_duration
+from radio_utils import call_claude, fetch_weather, get_audio_duration, send_telegram_audio
 from radio_utils import mix_with_bgm as _mix_bgm
 from radio_utils import synthesize_mp3 as _synth
 
@@ -227,19 +227,12 @@ def write_summary(script):
 # ---------- Telegram ----------
 def send_audio(mp3_path, caption):
     today = datetime.now().strftime("%Y-%m-%d")
-    with open(mp3_path, "rb") as f:
-        r = requests.post(
-            f"https://api.telegram.org/bot{TG_BOT_TOKEN}/sendAudio",
-            data={
-                "chat_id":   TG_CHAT_ID,
-                "caption":   caption[:1020],
-                "title":     f"AI 晨间播报 · {today}",
-                "performer": "早间电台",
-            },
-            files={"audio": ("morning_radio.mp3", f, "audio/mpeg")},
-            timeout=300,
-        )
-    r.raise_for_status()
+    send_telegram_audio(
+        mp3_path, TG_BOT_TOKEN, TG_CHAT_ID,
+        caption=caption,
+        title=f"AI 晨间播报 · {today}",
+        performer="早间电台",
+    )
 
 
 # ---------- Main ----------

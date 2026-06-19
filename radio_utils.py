@@ -96,3 +96,29 @@ def synthesize_mp3(text: str, out_path: str, voice: str, rate: str, pitch: str,
     async def _run():
         await edge_tts.Communicate(text=text, voice=voice, rate=rate, pitch=pitch).save(out_path)
     asyncio.run(_run())
+
+
+def send_telegram_audio(mp3_path: str, bot_token: str, chat_id: str,
+                        caption: str, title: str, performer: str,
+                        retries: int = 3) -> None:
+    last_err = None
+    for attempt in range(1, retries + 1):
+        if attempt > 1:
+            wait = 30 * attempt
+            print(f"  [retry {attempt}/{retries}] waiting {wait}s before retry…")
+            time.sleep(wait)
+        try:
+            with open(mp3_path, "rb") as f:
+                r = requests.post(
+                    f"https://api.telegram.org/bot{bot_token}/sendAudio",
+                    data={"chat_id": chat_id, "caption": caption[:1020],
+                          "title": title, "performer": performer},
+                    files={"audio": (os.path.basename(mp3_path), f, "audio/mpeg")},
+                    timeout=300,
+                )
+            r.raise_for_status()
+            return
+        except Exception as e:
+            last_err = e
+            print(f"  [attempt {attempt}] Telegram send failed: {e}")
+    raise RuntimeError(f"Telegram upload failed after {retries} attempts") from last_err

@@ -93,49 +93,65 @@ Each script has a small constants block at the top. Common knobs:
 | `BGM_VOLUME` | Background music level (0.0–1.0) |
 | `CITY_FOR_WEATHER` | City for weather fetch |
 
+## Night radio topic calendar
+
+`topics_calendar.py` assigns every episode's topics deterministically by day-of-year — zero token cost, no LLM calls, no log file reads.
+
+| Dimension | Pool size | Repeat gap |
+|---|---|---|
+| World / Chinese cities | 73 | every 73 days (~2.4 months) |
+| Historical figures | 71 | every 71 days (~2.3 months) |
+| Culture themes | 61 | every 61 days (~2 months) |
+| Health topics | 59 | every 59 days (~2 months) |
+
+The four list lengths are co-prime → the exact combination of all four topics never repeats within a human lifetime.
+
+To add or reorder topics, edit the four lists in `topics_calendar.py`. The calendar is shared by both `night_radio.py` and is imported at script start — no other changes needed.
+
+**Chinese small cities in rotation (23):** 苏州、杭州、平遥、丽江、凤凰、绍兴、歙县、松阳、大理、阆中、同里、西塘、碛口、景德镇、乌镇、南浔、宏村、婺源、建水、束河、稻城、镇远、泸沽湖
+
+**Historical figures in rotation (71):** 50 ancient Chinese (陶渊明、王维、李清照、欧阳修、范仲淹 … 苏东坡、唐寅、郑板桥、石涛 …) + 21 world pre-modern (马可·波罗、达·芬奇、维米尔、莫奈、巴赫、托尔斯泰、卡夫卡 …)
+
 ## Extending & customising
 
-The programs in this repo are one example setup — everything is designed to be adapted:
-
 ### Delivery schedule
-Change the cron time to whatever fits your routine. Want a lunchtime briefing instead of morning? Change `45 06` to `00 12`. Want weekdays only? Add `1-5` to the day-of-week field.
+Change the cron time to whatever fits your routine.
 
 ### News sources & topics
-Each script has a `FEEDS` dict near the top listing RSS sources by category. You can:
-- **Add** any RSS feed URL (Google News, industry blogs, podcasts, etc.)
-- **Remove** categories you don't care about
-- **Replace** the entire `FEEDS` dict to cover a completely different domain — finance, sports, local news, science, anything with an RSS feed
+Each news script has a `FEEDS` dict near the top listing RSS sources by category. Add, remove, or replace feed URLs freely.
 
 ### Program format & content
-The Claude prompt inside `write_broadcast()` (or `write_evening_broadcast()`, `write_sleep_script()`) is plain text — edit it freely to:
-- Change the number of news items per section
-- Add or remove sections entirely
-- Switch language (English, bilingual, etc.)
-- Change the tone, persona, or style of the host
-- Target a different city, profession, or set of interests
+The Claude prompt inside `write_broadcast()` (or `write_evening_broadcast()`, `write_sleep_script()`) is plain text — edit it to change sections, tone, language, or target audience.
+
+### Night radio topics
+Edit the four lists in `topics_calendar.py` to change the city/figure/culture/health pools. Each list entry is a plain Chinese string. Keep list lengths co-prime for best non-repeat behaviour.
+
+### Sleep radio scenes
+The bedtime story scene list is a `/`-separated string in `write_sleep_script()` inside `sleep_radio.py`. Current pool has 17 scenes including 7 characteristic Chinese small-city settings (平遥、凤凰、景德镇、松阳、绍兴、歙县、大理).
 
 ### Delivery channel
-The scripts send to Telegram, but the final step is just an HTTP POST with an MP3 file. You can swap the `send_audio()` function to deliver via email attachment, WhatsApp (via API), a local folder, or any other channel.
+The final step is an HTTP POST with an MP3. Swap `send_audio()` to deliver via email, a local folder, or any other channel.
 
 ### Multiple listeners
-Each script reads `LISTENER_NAME` and `WIFE_NAME` from environment variables (`secrets.env`). To add a third listener, duplicate a script, point it at a new `TG_BOT_TOKEN` / `TG_CHAT_ID`, and set a new name variable — then add one cron line.
+Each script reads `LISTENER_NAME` and `WIFE_NAME` from `secrets.env`. To add a third listener, duplicate a script, point it at a new `TG_BOT_TOKEN` / `TG_CHAT_ID`, and add one cron line.
 
 ### Personal worklog
-`worklog.py` + `worklog_bot.py` provide a lightweight SQLite task log with CLI and Telegram bot interfaces. The bot reuses your existing Telegram bot token — no extra setup needed.
+`worklog.py` + `worklog_bot.py` provide a lightweight SQLite task log with CLI and Telegram bot interfaces.
 
 ## Project structure
 
 ```
 yt-agent/
 ├── news_radio_cc.py          # Morning news — CC edition
-├── news_radio_wife.py        # Morning news — wife edition
+├── news_radio_wife.py        # Morning news — wife edition (timeout=900s)
 ├── news_radio_wife_noon.py   # Noon radio — wife edition
 ├── night_radio.py            # Evening culture radio
 ├── sleep_radio.py            # Bedtime radio
+├── topics_calendar.py        # 365-day topic lookup table for night_radio
 ├── radio_utils.py            # Shared: Claude, TTS, FFmpeg, weather
 ├── secrets.env.example       # Template — copy to secrets.env
 ├── bgm/                      # Background music (not in git)
-├── radio/                    # Output: morning CC (not in git)
+├── radio/                    # Output: morning (not in git)
 ├── radio_night/              # Output: evening (not in git)
 ├── radio_noon/               # Output: noon wife (not in git)
 └── radio_sleep/              # Output: sleep (not in git)

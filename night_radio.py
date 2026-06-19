@@ -1,16 +1,16 @@
 #!/usr/bin/env python3 -u
 """
 《世界下班以后》— 晚间电台
-- 每天检查前一天节目日志,避免重复话题(城市/历史/文化/健康)
-- 生成后提取并保存今日话题 log
+- 话题由 topics_calendar.py 静态日历决定,零 token 消耗,365 天不重复
+- 生成后提取并保存今日话题 log（供人工回顾）
 """
 
 import os
 import re
 import json
-import requests
 from datetime import datetime, timedelta
-from radio_utils import call_claude, fetch_weather, get_audio_duration
+from topics_calendar import get_topics_for_day
+from radio_utils import call_claude, fetch_weather, get_audio_duration, send_telegram_audio
 from radio_utils import mix_with_bgm as _mix_bgm
 from radio_utils import synthesize_mp3 as _synth
 
@@ -46,24 +46,7 @@ def mix_with_bgm(voice_path, bgm_path, output_path, bgm_volume=BGM_VOLUME):
     _mix_bgm(voice_path, bgm_path, output_path, bgm_volume, BGM_FADE_IN, BGM_FADE_OUT)
 
 
-# ---------- Topic log ----------
-def get_yesterday_topics():
-    yesterday = (datetime.now() - timedelta(days=1)).strftime("%Y%m%d")
-    log_path = os.path.join(OUT_DIR, f"topics_night_{yesterday}.json")
-    if not os.path.exists(log_path):
-        print("  [topics] No yesterday log found — no topic constraints.")
-        return None
-    try:
-        with open(log_path, "r", encoding="utf-8") as f:
-            topics = json.load(f)
-        print(f"  [topics] Yesterday: city={topics.get('city','?')}, "
-              f"history={topics.get('history','?')}, "
-              f"culture={topics.get('culture','?')}, "
-              f"health={topics.get('health','?')}")
-        return topics
-    except Exception as e:
-        print(f"  [topics] Failed to read yesterday log: {e}")
-        return None
+# ---------- Topic log (archive only, not used for topic selection) ----------
 
 
 def extract_and_save_topics(script: str):
@@ -92,7 +75,7 @@ def extract_and_save_topics(script: str):
 
 
 # ---------- Broadcast script ----------
-def write_evening_broadcast(weather, yesterday_topics=None):
+def write_evening_broadcast(weather, today_topics: dict):
     today       = datetime.now().strftime("%Y年%m月%d日")
     weekday_cn  = ["星期一","星期二","星期三","星期四","星期五","星期六","星期日"][
         datetime.now().weekday()]
@@ -108,25 +91,20 @@ def write_evening_broadcast(weather, yesterday_topics=None):
     else:
         weather_block = "(天气信息缺失,用通用傍晚氛围描写)"
 
-    if yesterday_topics:
-        avoid_block = (
-            f"\n**重要：昨天已经讲过以下话题，今天必须选完全不同的：**\n"
-            f"- 城市漫游：昨天讲了「{yesterday_topics.get('city','未知')}」→ 今天选另一座城市\n"
-            f"- 历史故事：昨天讲了「{yesterday_topics.get('history','未知')}」→ 今天换不同主角或时代\n"
-            f"- 文化细节：昨天是「{yesterday_topics.get('culture','未知')}」→ 今天换不同文化主题\n"
-            f"- 健康养生：昨天是「{yesterday_topics.get('health','未知')}」→ 今天换不同健康话题\n"
-        )
-    else:
-        avoid_block = ""
+    directed_block = (
+        f"\n**今天各节的指定话题（必须严格按照，不要更改）：**\n"
+        f"- 第2节 城市漫游：今天讲「{today_topics['city']}」\n"
+        f"- 第3节 历史故事：今天主角是「{today_topics['history']}」\n"
+        f"- 第4节 文化细节：今天聊「{today_topics['culture']}」\n"
+        f"- 第5节 健康养生：今天聊「{today_topics['health']}」\n"
+    )
 
     prompt = f"""你是我的私人晚间电台主持人，每天下班后为我录制一期《世界下班以后》。
 
 关于我：{OWNER_PROFILE}
 
 节目名：《世界下班以后》。今天是 {today} {weekday_cn}。
-{avoid_block}
-话题方向（每天轮换，不要总选同一个）：世界城市/历史人物/博物馆/旅行/古老街道/茶文化/欧洲小城/日本小店/中国传统文化/建筑/书店/咖啡馆/景德镇/佛罗伦萨/京都/巴黎/罗马/伊斯坦布尔/维也纳/威尼斯/苏州/杭州/奈良/爱丁堡/布拉格/波尔图
-
+{directed_block}
 目标约 {TARGET_MINUTES} 分钟，总字数不少于 {target_chars} 字（硬性要求，节目偏短是最大失败）。
 
 文体：全中文，短段落，有呼吸感，适合TTS，可加[停顿]，不用markdown/列表/emoji，氛围感和画面感优先，不确定细节用"据说…"，只返回正文。
@@ -139,16 +117,16 @@ def write_evening_broadcast(weather, yesterday_topics=None):
 {weather_block}
 
 第2节 世界城市漫游（最少1800字）
-选一座城市（必须与昨天不同）。像傍晚在这座城市慢慢散步，写小街道、光线、气味、咖啡馆、市场、建筑、夜色。足够慢、足够细。
+今天讲「{today_topics['city']}」。像傍晚在这座城市慢慢散步，写小街道、光线、气味、咖啡馆、市场、建筑、夜色。足够慢、足够细。
 
 第3节 历史小故事（最少1800字）
-独立一节，不与第2节合并。轻松有趣的历史故事，重点是"人"不是年代列表。可以是奇怪的皇帝/安静的修士/古老书店/旅行者/工匠/茶人/画家。要有细节、有转折、有情感，真正讲够7分钟。
+独立一节，不与第2节合并。今天讲「{today_topics['history']}」的故事。轻松有趣，重点是"人"不是年代列表。要有细节、有转折、有情感，真正讲够7分钟。
 
 第4节 文化与生活细节（最少1200字）
-独立一节。一个有趣的小文化主题，充分展开，聊出深度和温度。
+独立一节。今天聊「{today_topics['culture']}」，充分展开，聊出深度和温度。
 
 第5节 健康、身体与养生（最少900字）
-独立一节，非常重要，不要省略。下班后的身体恢复：肩颈放松、晚饭散步、呼吸、热茶、睡眠。风格温柔，像真正关心听众的朋友。
+独立一节，非常重要，不要省略。今天聊「{today_topics['health']}」。风格温柔，像真正关心听众的朋友。
 
 第6节 轻松笑话与奇闻（最少400字）
 温和幽默，世界奇闻或历史趣事，要真正有趣，写够两分钟。
@@ -180,19 +158,12 @@ def write_caption(script):
 # ---------- Telegram ----------
 def _send_audio_to(bot_token, chat_id, mp3_path, caption):
     today = datetime.now().strftime("%Y-%m-%d")
-    with open(mp3_path, "rb") as f:
-        r = requests.post(
-            f"https://api.telegram.org/bot{bot_token}/sendAudio",
-            data={
-                "chat_id":   chat_id,
-                "caption":   caption[:1020],
-                "title":     f"《世界下班以后》· {today}",
-                "performer": "晚间电台",
-            },
-            files={"audio": ("night_radio.mp3", f, "audio/mpeg")},
-            timeout=300,
-        )
-    r.raise_for_status()
+    send_telegram_audio(
+        mp3_path, bot_token, chat_id,
+        caption=caption,
+        title=f"《世界下班以后》· {today}",
+        performer="晚间电台",
+    )
 
 def send_audio(mp3_path, caption):
     recipients = [
@@ -215,11 +186,14 @@ def main():
     if weather:
         print(f"  {weather['temp_c']}°C, {weather['desc']}, sunset {weather['sunset']}")
 
-    print("→ Loading yesterday's topic log…")
-    yesterday_topics = get_yesterday_topics()
+    doy = datetime.now().timetuple().tm_yday
+    today_topics = get_topics_for_day(doy)
+    print(f"→ Today's topics (day {doy}): city={today_topics['city']}, "
+          f"history={today_topics['history']}, "
+          f"culture={today_topics['culture']}, health={today_topics['health']}")
 
     print(f"→ Writing evening broadcast ({CLAUDE_MODEL})…")
-    script = write_evening_broadcast(weather, yesterday_topics)
+    script = write_evening_broadcast(weather, today_topics)
     today  = datetime.now().strftime("%Y%m%d")
     script_path = os.path.join(OUT_DIR, f"script_night_{today}.txt")
     with open(script_path, "w", encoding="utf-8") as f:

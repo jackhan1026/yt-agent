@@ -11,9 +11,8 @@ Cron（每晚 23:00）:
 
 import os
 import re
-import requests
 from datetime import datetime, timedelta
-from radio_utils import call_claude, get_audio_duration
+from radio_utils import call_claude, get_audio_duration, send_telegram_audio
 from radio_utils import mix_with_bgm as _mix_bgm
 from radio_utils import synthesize_mp3 as _synth
 
@@ -145,7 +144,7 @@ def write_sleep_script(yesterday_topic: str = "") -> str:
 
 安静的小故事（最少1400字）
 从以下场景中选一个（每天轮换）：
-一家夜晚关门的旧书店 / 雨夜里的京都小巷 / 景德镇窑火慢慢暗下去的傍晚 / 一个老茶馆准备打烊的夜晚 / 博物馆夜里安静的展厅 / 一列慢慢行驶的夜行火车 / 一个旅人住进海边小旅馆 / 一个古城里慢慢熄灯的院子 / 苏州园林夜里的月光与水面 / 一位修复古画的老师傅在安静的午后 / 一个卖茶的老人关门前的最后一泡茶
+一家夜晚关门的旧书店 / 雨夜里的京都小巷 / 平遥古城夜里最后一盏灯慢慢熄灭 / 凤凰沱江边吊脚楼里的灯光 / 景德镇窑火慢慢暗下去的夜晚 / 松阳老街茶馆准备关门的傍晚 / 绍兴运河边乌篷船停靠的夜晚 / 歙县古村一户人家院子里最后一盏灯 / 大理古城洱海边客栈的夜晚 / 一个老茶馆准备打烊的夜晚 / 博物馆夜里安静的展厅 / 一列慢慢行驶的夜行火车 / 一个旅人住进海边小旅馆 / 一个古城里慢慢熄灯的院子 / 苏州园林夜里的月光与水面 / 一位修复古画的老师傅在安静的午后 / 一个卖茶的老人关门前的最后一泡茶
 
 无强冲突/悬疑/惊吓/悲伤/过度搞笑，只需安静/画面感/温度/细节/慢慢展开，要写够7分钟。
 
@@ -188,19 +187,12 @@ def write_caption(script: str) -> str:
 # ---------- Telegram ----------
 def _send_audio_to(bot_token: str, chat_id: str, mp3_path: str, caption: str, label: str):
     today = datetime.now().strftime("%Y-%m-%d")
-    with open(mp3_path, "rb") as f:
-        r = requests.post(
-            f"https://api.telegram.org/bot{bot_token}/sendAudio",
-            data={
-                "chat_id":   chat_id,
-                "caption":   caption[:1020],
-                "title":     f"《今晚慢慢睡》· {today}",
-                "performer": "睡前电台",
-            },
-            files={"audio": (f"sleep_radio_{today}.mp3", f, "audio/mpeg")},
-            timeout=300,
-        )
-    r.raise_for_status()
+    send_telegram_audio(
+        mp3_path, bot_token, chat_id,
+        caption=caption,
+        title=f"《今晚慢慢睡》· {today}",
+        performer="睡前电台",
+    )
     print(f"    ✓ sent to {label} (chat_id={chat_id})")
 
 
